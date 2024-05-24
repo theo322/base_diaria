@@ -74,6 +74,7 @@ if formato is not None:
                         formatted_df["Venda QTD"] = formatted_df["Venda QTD"].astype(str).str.replace(",", "")
                         formatted_df["Estoque QTD"] = formatted_df["Estoque QTD"].astype(str).str.replace(",", "")
                         formatted_df["Estoque trânsito peças"] = formatted_df["Estoque trânsito peças"].astype(str).str.replace(",", "")
-                        
-                        st.download_button("Baixar base", csv, "base.csv",mime="text/csv")
+
                         csv = formatted_df.to_csv(index=False, encoding="Latin-1")
+                        st.download_button("Baixar base", csv, "base.csv",mime="text/csv")
+                        
