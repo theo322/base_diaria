@@ -58,39 +58,38 @@ if ano is not None:
                     
                     # SQL query to filter data based on date range
                     sql_query = f"SELECT * FROM s3object s WHERE s._1 >= '{start_date_str}' AND s._1 <= '{end_date_str}'"
-                    response = s3.select_object_content(
-                        Bucket=bucket_name,
-                        Key=f"{ano}_{familia}.csv",
-                        ExpressionType='SQL',
-                        Expression=sql_query,
-                        InputSerialization={'CSV': {'FileHeaderInfo': 'IGNORE', 'RecordDelimiter': '\n', 'FieldDelimiter': ','}},
-                        OutputSerialization={'CSV': {}}
-                    ) 
+                    with st.spinner("Fetching data..."):
+                        response = s3.select_object_content(
+                            Bucket=bucket_name,
+                            Key=f"{ano}_{familia}.csv",
+                            ExpressionType='SQL',
+                            Expression=sql_query,
+                            InputSerialization={'CSV': {'FileHeaderInfo': 'IGNORE', 'RecordDelimiter': '\n', 'FieldDelimiter': ','}},
+                            OutputSerialization={'CSV': {}}
+                        )
 
-                    records = []
-                    for event in response["Payload"]:
-                        if "Records" in event:
-                            records.append(event["Records"]["Payload"])
-                    csv_data = b''.join(records)
-                    csv_buffer = io.BytesIO(csv_data)
-                    df = pd.read_csv(csv_buffer, names=column_names, encoding='latin1')
+                        records = []
+                        for event in response["Payload"]:
+                            if "Records" in event:
+                                records.append(event["Records"]["Payload"])
+                        csv_data = b''.join(records)
+                        csv_buffer = io.BytesIO(csv_data)
+                        df = pd.read_csv(csv_buffer, names=column_names, encoding='latin1')
 
-                    df["Item"] = df["Item"].astype(str)
+                        df["Item"] = df["Item"].astype(str)
 
-                    st.dataframe(df.head(200))
-                    formatted_df = df.copy()
-                    formatted_df["Venda R$"] = formatted_df["Venda R$"].astype(str).str.replace(",", "")
-                    formatted_df["Venda R$"] = formatted_df["Venda R$"].astype(str).str.replace(".", ",")
-                    formatted_df["R$ Margem"] = formatted_df["R$ Margem"].astype(str).str.replace(",", "")
-                    formatted_df["R$ Margem"] = formatted_df["R$ Margem"].astype(str).str.replace(".", ",")
-                    formatted_df["Estoque R$"] = formatted_df["Estoque R$"].astype(str).str.replace(",", "")
-                    formatted_df["Estoque R$"] = formatted_df["Estoque R$"].astype(str).str.replace(".", ",")
-                    formatted_df["Venda QTD"] = formatted_df["Venda QTD"].astype(str).str.replace(",", "")
-                    formatted_df["Estoque QTD"] = formatted_df["Estoque QTD"].astype(str).str.replace(",", "")
-                    formatted_df["Estoque transito QTD"] = formatted_df["Estoque transito QTD"].astype(str).str.replace(",", "")
-                    formatted_df["Estoque alocado CD"] = formatted_df["Estoque alocado CD"].astype(str).str.replace(",", "")
+                        st.dataframe(df.head(200))
                         
-
-                    # Provide a download button for the CSV file
-                    csv = formatted_df.to_csv(index=False, encoding="utf-8")
-                    st.download_button("Download 📥", csv, f"{familia}_{start_date}_{end_date}.csv", mime="text/csv")
+                        # Format the DataFrame
+                        formatted_df = df.copy()
+                        formatted_df["Venda R$"] = formatted_df["Venda R$"].astype(str).str.replace(",", "").str.replace(".", ",")
+                        formatted_df["R$ Margem"] = formatted_df["R$ Margem"].astype(str).str.replace(",", "").str.replace(".", ",")
+                        formatted_df["Estoque R$"] = formatted_df["Estoque R$"].astype(str).str.replace(",", "").str.replace(".", ",")
+                        formatted_df["Venda QTD"] = formatted_df["Venda QTD"].astype(str).str.replace(",", "")
+                        formatted_df["Estoque QTD"] = formatted_df["Estoque QTD"].astype(str).str.replace(",", "")
+                        formatted_df["Estoque transito QTD"] = formatted_df["Estoque transito QTD"].astype(str).str.replace(",", "")
+                        formatted_df["Estoque alocado CD"] = formatted_df["Estoque alocado CD"].astype(str).str.replace(",", "")
+                        
+                        # Provide a download button for the CSV file
+                        csv = formatted_df.to_csv(index=False, encoding="utf-8")
+                        st.download_button("Download 📥", csv, f"{familia}_{start_date}_{end_date}.csv", mime="text/csv")
