@@ -78,6 +78,7 @@ if ano is not None:
 
                         df["Item"] = df["Item"].astype(str)
 
+                        st.markdown("**Prévia**")
                         st.dataframe(df.head(200))
                         
                         # Format the DataFrame
