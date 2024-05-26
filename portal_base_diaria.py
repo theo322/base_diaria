@@ -29,16 +29,16 @@ column_names = ["Data", "Loja", "Departamento", "Grupo", "Subgrupo", "Item", "Ve
 st.title("Baixe uma base diária 📂")
 st.subheader("Por conta do volume de dados, é recomendado escolher períodos inferiores à 3 meses.")
 st.markdown("**:green[É possível gerar bases do período completo! Não conte com a internet do escritório para isso, tenha paciência...]**")
-st.markdown("As bases são geradas no formato CSV")
+st.markdown("**As bases são geradas no formato CSV**")
 
 ano = st.radio("Escolha o ano", options=[2023, 2024], index=None)
 if ano is not None:
     familia = st.selectbox("Escolha uma família", options=["Lar", "Masculino", "Feminino", "Infantil", "Calçados", "Acessorios Av"], index=None)
     if familia is not None:
         st.subheader("Vamos escolher o período que você deseja analisar 📅")
-        start_date = st.date_input(":red[Escolha a data inicial]", value=None, min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
+        start_date = st.date_input(":red[Escolha a data inicial] (Ano/Mês/Dia)", value=None, min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
         if start_date is not None:
-            end_date = st.date_input(":red[Escolha a data final]", min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
+            end_date = st.date_input(":red[Escolha a data final] (Ano/Mês/Dia)", min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
             if start_date > end_date:
                 st.error("A data inicial deve ser menor(mais antiga) que a data final")
             else:
