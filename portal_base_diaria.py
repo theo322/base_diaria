@@ -38,7 +38,7 @@ if ano is not None:
         st.subheader("Vamos escolher o período que você deseja analisar 📅")
         start_date = st.date_input(":red[Escolha a data inicial] (Ano/Mês/Dia)", value=None, min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
         if start_date is not None:
-            end_date = st.date_input(":red[Escolha a data final] (Ano/Mês/Dia)", min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
+            end_date = st.date_input(":red[Escolha a data final] (Ano/Mês/Dia)", min_value=start_date, max_value=datetime.date(ano, 12, 31))
             if start_date > end_date:
                 st.error("A data inicial deve ser menor(mais antiga) que a data final")
             else:
