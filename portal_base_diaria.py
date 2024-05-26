@@ -1,80 +1,86 @@
 import streamlit as st
 import pandas as pd
-import os
 import boto3
-import pandas as pd
 import datetime
+from dotenv import load_dotenv
+import io
+import os
 
+# Load AWS credentials from .env file
+load_dotenv()
 
-# Load AWS credentials from environment variables
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-AWS_DEFAULT_REGION = os.environ.get('AWS_DEFAULT_REGION')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_DEFAULT_REGION = os.getenv('AWS_DEFAULT_REGION')
+
 # Create an S3 client
 s3 = boto3.client('s3', 
                   aws_access_key_id=AWS_ACCESS_KEY_ID,
                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
                   region_name=AWS_DEFAULT_REGION)
+
 # Name of your S3 bucket
 bucket_name = 'myavbucket'
-response = s3.list_objects_v2(Bucket=bucket_name)
 
+# Column names
+column_names = ["Data", "Loja", "Departamento", "Grupo", "Subgrupo", "Item", "Venda QTD", "Venda R$", "R$ Margem", "Estoque R$", "Estoque QTD", "Estoque transito QTD", "Estoque alocado CD"]
 
 # Start STREAMLIT
 st.title("Baixe uma base diária 📂")
-#if st.text_input('Insira senha') == "$avenida2024#!":
 st.subheader("Por conta do volume de dados, não é possível gerar uma base diária contendo loja e item.")
 st.markdown("É possível gerar bases nos formatos **'dia-item'** ou **'dia-loja'**.")
 st.markdown("**:green[As duas bases contém a hierarquia de produto até subgrupo]**")
 
+ano = st.radio("Escolha o ano", options=[2023, 2024], index=None)
+if ano is not None:
+    familia = st.selectbox("Escolha uma família", options=["Lar", "Masculino", "Feminino", "Infantil", "Calçados", "Acessorios Av"], index=None)
+    if familia is not None:
+        st.subheader("Vamos escolher o período que você deseja analisar 📅")
+        start_date = st.date_input(":red[Escolha a data inicial]", value=None, min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
+        if start_date is not None:
+            end_date = st.date_input(":red[Escolha a data final]", min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
+            if start_date > end_date:
+                st.error("A data inicial deve ser menor(mais antiga) que a data final")
+            else:
+                if st.button("Executar"):
+                    start_date_str = start_date.strftime('%Y-%m-%d')
+                    end_date_str = end_date.strftime('%Y-%m-%d')
+                    
+                    # SQL query to filter data based on date range
+                    sql_query = f"SELECT * FROM s3object s WHERE s._1 >= '{start_date_str}' AND s._1 <= '{end_date_str}'"
+                    response = s3.select_object_content(
+                        Bucket=bucket_name,
+                        Key=f"{ano}_{familia}.csv",
+                        ExpressionType='SQL',
+                        Expression=sql_query,
+                        InputSerialization={'CSV': {'FileHeaderInfo': 'IGNORE', 'RecordDelimiter': '\n', 'FieldDelimiter': ','}},
+                        OutputSerialization={'CSV': {}}
+                    ) 
 
+                    records = []
+                    for event in response["Payload"]:
+                        if "Records" in event:
+                            records.append(event["Records"]["Payload"])
+                    csv_data = b''.join(records)
+                    csv_buffer = io.BytesIO(csv_data)
+                    df = pd.read_csv(csv_buffer, names=column_names, encoding='latin1')
 
-if 'run_clicked' not in st.session_state:
-    st.session_state.run_clicked = False
+                    df["Item"] = df["Item"].astype(str)
 
-
-formato = st.radio(":red[Escolha abaixo o formato desejado:]", options=["Loja", "Item"], index=None)
-if formato is not None:
-    ano = st.radio("Escolha o ano", options=[2023, 2024], index=None)
-    if ano is not None:
-
-        familia = st.selectbox("Escolha uma família", options=["01 Lar", "02 Masculino", "03 Feminino", "04 Infantil", "05 Calçados", "10 Acessorios Av" ], index= None)
-        if familia is not None:
-            st.subheader("Vamos escolher o período que você deseja analisar 📅")
-            start_date = st.date_input(":red[Escolha a data inicial]", value= None, min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12,31)) 
-            if start_date is not None:
-                end_date = st.date_input(":red[Escolha a data final]", min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12,31))
-                if start_date > end_date:
-                    st.error("A data inicial deve ser menor(mais antiga) que a data final")
-                else:
-                
-                    if st.button("Executar"):
-
-                     
-                        start_date = pd.to_datetime(start_date)
-                        end_date = pd.to_datetime(end_date)
-                        csv_files = [obj['Key'] for obj in response.get('Contents', []) if obj['Key'].endswith('.csv')]
-                        csv_obj = s3.get_object(Bucket=bucket_name, Key=f"{ano}_{familia}_{formato}.csv")
-                        df = pd.read_csv(csv_obj['Body'], encoding='utf-8')
-                        df['DATA'] = pd.to_datetime(df['DATA'])
-                        df2 = df.loc[(df['DATA'] >= start_date) & (df['DATA'] <= end_date)]
-                        df2["DATA"] = df2["DATA"].dt.date
-                        if formato ==  "Item":
-                            df2["ITEM"] = df2["ITEM"].astype(str)
-                        st.dataframe(df2)
-
-                        #Formatando decimais
-                        formatted_df = df2.copy()
-                        formatted_df["Venda R$"] = formatted_df["Venda R$"].astype(str).str.replace(",", "")
-                        formatted_df["Venda R$"] = formatted_df["Venda R$"].astype(str).str.replace(".", ",")
-                        formatted_df["R$ Margem"] = formatted_df["R$ Margem"].astype(str).str.replace(",", "")
-                        formatted_df["R$ Margem"] = formatted_df["R$ Margem"].astype(str).str.replace(".", ",")
-                        formatted_df["R$ Estoque"] = formatted_df["R$ Estoque"].astype(str).str.replace(",", "")
-                        formatted_df["R$ Estoque"] = formatted_df["R$ Estoque"].astype(str).str.replace(".", ",")
-                        formatted_df["Venda QTD"] = formatted_df["Venda QTD"].astype(str).str.replace(",", "")
-                        formatted_df["Estoque QTD"] = formatted_df["Estoque QTD"].astype(str).str.replace(",", "")
-                        formatted_df["Estoque trânsito peças"] = formatted_df["Estoque trânsito peças"].astype(str).str.replace(",", "")
-
-                        csv = formatted_df.to_csv(index=False, encoding="Latin-1")
-                        st.download_button("Baixar base", csv, "base.csv",mime="text/csv")
+                    st.dataframe(df.head(200))
+                    formatted_df = df.copy()
+                    formatted_df["Venda R$"] = formatted_df["Venda R$"].astype(str).str.replace(",", "")
+                    formatted_df["Venda R$"] = formatted_df["Venda R$"].astype(str).str.replace(".", ",")
+                    formatted_df["R$ Margem"] = formatted_df["R$ Margem"].astype(str).str.replace(",", "")
+                    formatted_df["R$ Margem"] = formatted_df["R$ Margem"].astype(str).str.replace(".", ",")
+                    formatted_df["Estoque R$"] = formatted_df["Estoque R$"].astype(str).str.replace(",", "")
+                    formatted_df["Estoque R$"] = formatted_df["Estoque R$"].astype(str).str.replace(".", ",")
+                    formatted_df["Venda QTD"] = formatted_df["Venda QTD"].astype(str).str.replace(",", "")
+                    formatted_df["Estoque QTD"] = formatted_df["Estoque QTD"].astype(str).str.replace(",", "")
+                    formatted_df["Estoque transito QTD"] = formatted_df["Estoque transito QTD"].astype(str).str.replace(",", "")
+                    formatted_df["Estoque alocado CD"] = formatted_df["Estoque alocado CD"].astype(str).str.replace(",", "")
                         
+
+                    # Provide a download button for the CSV file
+                    csv = formatted_df.to_csv(index=False, encoding="utf-8")
+                    st.download_button("Baixar base", csv, "base.csv", mime="text/csv")
