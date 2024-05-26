@@ -93,4 +93,4 @@ if ano is not None:
 
                     # Provide a download button for the CSV file
                     csv = formatted_df.to_csv(index=False, encoding="utf-8")
-                    st.download_button("📥", csv, f"{familia}_{start_date}_{end_date}.csv", mime="text/csv")
+                    st.download_button("Download 📥", csv, f"{familia}_{start_date}_{end_date}.csv", mime="text/csv")
