@@ -2,6 +2,6 @@
 # Primary accent for interactive elements
 primaryColor = "#F5F3EC"
 # Background color for the main content area
-backgroundColor = "#f8c215"
+backgroundColor = "#272723"
 # Background color for sidebar and expanded menu
 secondaryBackgroundColor = "#F3D98F"
