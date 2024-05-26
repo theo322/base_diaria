@@ -4,4 +4,4 @@ primaryColor = "#1f77b4"
 # Background color for the main content area
 backgroundColor = "#D8D87B"
 # Background color for sidebar and expanded menu
-secondaryBackgroundColor = "#f0f2f6"
+secondaryBackgroundColor = "#D8D87B"
