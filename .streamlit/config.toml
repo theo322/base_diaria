@@ -1,8 +1,8 @@
 [theme]
 # Primary accent for interactive elements
-primaryColor = "#F5F3EC"
+primaryColor = "#f8c215"
 # Background color for the main content area
 backgroundColor = "#272723"
 # Background color for sidebar and expanded menu
-secondaryBackgroundColor = "#F3D98F"
+secondaryBackgroundColor = "#f8c215"
 textColor="#FFFFFF"
