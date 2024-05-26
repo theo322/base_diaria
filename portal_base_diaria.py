@@ -58,7 +58,7 @@ if ano is not None:
                     
                     # SQL query to filter data based on date range
                     sql_query = f"SELECT * FROM s3object s WHERE s._1 >= '{start_date_str}' AND s._1 <= '{end_date_str}'"
-                    with st.spinner("Fetching data..."):
+                    with st.spinner("Coletando dados diários..."):
                         response = s3.select_object_content(
                             Bucket=bucket_name,
                             Key=f"{ano}_{familia}.csv",
