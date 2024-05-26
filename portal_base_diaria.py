@@ -28,7 +28,7 @@ column_names = ["Data", "Loja", "Departamento", "Grupo", "Subgrupo", "Item", "Ve
 # Start STREAMLIT
 st.title("Baixe uma base diária 📂")
 st.subheader("Por conta do volume de dados, é recomendado escolher períodos inferiores à 3 meses.")
-st.markdown("**:green[É possível gerar bases do período completo! Não conte com a internet do escritório para isso, tenha paciência...]**")
+st.markdown("**:green[É possível gerar bases do período completo! Isso pode demorar um pouco ⏳, tenha paciência...]**")
 st.markdown("**As bases são geradas no formato CSV**")
 
 ano = st.radio("Escolha o ano", options=[2023, 2024], index=None)
@@ -83,4 +83,4 @@ if ano is not None:
 
                     # Provide a download button for the CSV file
                     csv = formatted_df.to_csv(index=False, encoding="utf-8")
-                    st.download_button("Baixar base", csv, "base.csv", mime="text/csv")
+                    st.download_button(📥, csv, "base.csv", mime="text/csv")
