@@ -27,9 +27,9 @@ column_names = ["Data", "Loja", "Departamento", "Grupo", "Subgrupo", "Item", "Ve
 
 # Start STREAMLIT
 st.title("Baixe uma base diária 📂")
-st.subheader("Por conta do volume de dados, não é possível gerar uma base diária contendo loja e item.")
-st.markdown("É possível gerar bases nos formatos **'dia-item'** ou **'dia-loja'**.")
-st.markdown("**:green[As duas bases contém a hierarquia de produto até subgrupo]**")
+st.subheader("Por conta do volume de dados, é recomendado escolher períodos inferiores à 3 meses.")
+st.markdown("**:green[É possível gerar bases do período completo! Não conte com a internet do escritório para isso, tenha paciência...]**")
+st.markdown("As bases são geradas no formato CSV")
 
 ano = st.radio("Escolha o ano", options=[2023, 2024], index=None)
 if ano is not None:
