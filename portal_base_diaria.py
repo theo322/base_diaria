@@ -83,4 +83,4 @@ if ano is not None:
 
                     # Provide a download button for the CSV file
                     csv = formatted_df.to_csv(index=False, encoding="utf-8")
-                    st.download_button(📥, csv, "base.csv", mime="text/csv")
+                    st.download_button("📥", csv, "base.csv", mime="text/csv")
