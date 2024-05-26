@@ -26,6 +26,7 @@ bucket_name = 'myavbucket'
 column_names = ["Data", "Loja", "Departamento", "Grupo", "Subgrupo", "Item", "Venda QTD", "Venda R$", "R$ Margem", "Estoque R$", "Estoque QTD", "Estoque transito QTD", "Estoque alocado CD"]
 
 # Start STREAMLIT
+st.set_page_config(page_title= "Base diária", page_icon="📅")
 st.title("Baixe uma base diária 📂")
 st.subheader("Por conta do volume de dados, é recomendado escolher períodos inferiores à 3 meses.")
 st.markdown("**:green[É possível gerar bases do período completo! Isso pode demorar um pouco ⏳, tenha paciência...]**")
