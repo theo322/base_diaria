@@ -37,7 +37,7 @@ hide_st_style = """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 st.title("Baixe uma base diária 📂")
-st.subheader("Por conta do volume de dados, é recomendado escolher períodos inferiores à 3 meses.")
+st.subheader("Por conta do volume de dados, é recomendado escolher intervalos inferiores à 3 meses.")
 st.markdown("**:green[É possível gerar bases do período completo! Isso pode demorar um pouco 🐌...]**")
 st.markdown("**As bases são geradas no formato CSV**")
 
