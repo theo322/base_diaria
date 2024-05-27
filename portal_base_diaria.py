@@ -45,12 +45,20 @@ ano = st.radio("Escolha o ano", options=[2023, 2024], index=None)
 if ano is not None:
     familia = st.selectbox("Escolha uma família", options=["Lar", "Masculino", "Feminino", "Infantil", "Calçados", "Acessorios Av"], index=None)
     if familia is not None:
-        st.subheader("Vamos escolher o período que você deseja analisar 📅")
-        start_date = st.date_input(":red[Escolha a data inicial] (Ano/Mês/Dia)", value=None, min_value=datetime.date(ano, 1, 1), max_value=datetime.date(ano, 12, 31))
+         
+        st.subheader("Vamos escolher o período que você deseja analisar 📅")        
+        # Create max value for date widget
+        if ano == "2024":
+            max_value = datetime.datetime.now() - datetime.timedelta(days=1)
+        else:
+            max_value=datetime.date(ano, 12, 31)
+        # Date widget 
+        start_date = st.date_input(":red[Escolha a data inicial] (Ano/Mês/Dia)", value=None, min_value=datetime.date(ano, 1, 1), max_value=max_value)
         if start_date is not None:
-            end_date = st.date_input(":red[Escolha a data final] (Ano/Mês/Dia)", min_value=start_date, max_value=datetime.date(ano, 12, 31))
+            end_date = st.date_input(":red[Escolha a data final] (Ano/Mês/Dia)", min_value=start_date, max_value=max_value)
             if start_date > end_date:
                 st.error("A data inicial deve ser menor(mais antiga) que a data final")
+            
             else:
                 if st.button("Executar"):
                     start_date_str = start_date.strftime('%Y-%m-%d')
