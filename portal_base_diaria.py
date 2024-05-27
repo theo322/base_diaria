@@ -48,7 +48,7 @@ if ano is not None:
          
         st.subheader("Vamos escolher o período que você deseja analisar 📅")        
         # Create max value for date widget
-        if ano == "2024":
+        if ano == 2024:
             max_value = datetime.datetime.now() - datetime.timedelta(days=1)
         else:
             max_value=datetime.date(ano, 12, 31)
